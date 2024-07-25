@@ -1,6 +1,6 @@
-=== Wappi: Whatsapp и Telegram уведомления WooCommerce ===
+=== Wappi: уведомления в мессенджеры о заказах WooCommerce ===
 Contributors: support@wappi.pro
-Tags: woo commerce, woocommerce, ecommerce, whatsapp, telegram, notification, whatsapp notification, telegram notification, уведомления
+Tags: woocommerce, whatsapp, telegram, notification, уведомления
 Requires at least: 3.8
 Tested up to: 6.5
 Stable tag: 1.0
@@ -30,7 +30,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 * Установка индивидуальных шаблонов уведомлений с переменными. Для каждого уведомления можно установить свой собственный текст с использованием переменных: продукты, количество, цена, имя, телефон, адрес, произвольные поля (трек-номер)
 
-[САЙТ](https://dev.wappi.pro/) | [Поддержка](https://t.me/wappi_support)
+[САЙТ](https://wappi.pro/) | [Поддержка](https://t.me/wappi_support)
 
 == Installation ==
 1. Убедитесь, что у вас установлена последняя версия плагина [WooCommerce](http://www.woothemes.com/woocommerce).
@@ -40,21 +40,18 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
         * найдите плагин Wappi: Whatsapp и Telegram уведомления WooCommerce
         * нажмите кнопку *Установить*
     2.2 Через консоль:
-        * скачайте плагин здесь https://dev.wappi.pro/integrations/wordpress
+        * скачайте плагин здесь https://wappi.pro/integrations/wordpress
         * в административной панели перейдите на страницу *Плагины* и нажмите *Добавить новый*
         * перейдите на вкладку *Загрузить*, нажмите Обзор и выберите архив с плагином. Нажмите *Установить*
     2.3 По FTP:
-        * скачайте плагин здесь https://dev.wappi.pro/integrations/wordpress
+        * скачайте плагин здесь https://wappi.pro/integrations/wordpress
         * распакуйте архив и загрузите содержимое по FTP в папку ваш-домен/wp-content/plugins
         * в административной панели перейдите на страницу *Плагины* и нажмите *Установить* рядом с появившемся плагином
 3. После того, как плагин будет установлен, нажмите *Активировать плагин*.
 4. Наведите курсор на пункт меню *WooCommerce* и выберите *Wappi*.
-5. В настройках введите Токен API и id профиля (найти можно в https://dev.wappi.pro/dashboard), а также номер whatsapp продавца.
+5. В настройках введите Токен API и id профиля (найти можно в https://wappi.pro/dashboard), а также номер whatsapp продавца.
 6. Если это необходимо, то укажите статусы для каждого вида уведомлений и текст.
 7. Нажмите кнопку Сохранить.
-
-== Screenshots ==
-1. Настройки плагина Wappi
 
 == Changelog ==
 = 1.0 =
