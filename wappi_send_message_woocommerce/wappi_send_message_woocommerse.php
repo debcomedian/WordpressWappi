@@ -1,12 +1,15 @@
 <?php
 /*
 Plugin Name: Wappi
-Plugin URI:
+Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
 Version: 1.0
 Author: Wappi
 Author URI: https://wappi.pro
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
+
 if (!is_callable('is_plugin_active')) {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
