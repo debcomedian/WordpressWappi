@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
+
 /*
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
@@ -10,6 +14,13 @@ License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
+// Подключение стилей
+function wappi_enqueue_styles() {
+    wp_register_style('wappi_styles', plugins_url('styles/style.css', __FILE__));
+    wp_enqueue_style('wappi_styles');
+}
+add_action('admin_enqueue_scripts', 'wappi_enqueue_styles');
+
 if (!is_callable('is_plugin_active')) {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
@@ -19,7 +30,7 @@ if (is_plugin_active('woocommerce/woocommerce.php')) {
 
 register_activation_hook( __FILE__, 'wappi_woocommerce::activate' );
 
-function wappi_send( $phone, $message )
+function wappi_send( $phone, $message ) 
 {
     return (new wappi_woocommerce())->send( $phone, $message );
 }
@@ -29,7 +40,7 @@ class wappi_woocommerce {
 	public static function load() {
 		$_this = new self();
 		add_action( 'admin_menu', array($_this,'admin_menu'));
-		add_action( 'woocommerce_new_order', array($_this,'status_changed'),  10, 1  );
+		add_action( 'woocommerce_new_order', array($_this,'status_changed'), 10, 1);
 		add_action( 'woocommerce_order_status_changed', array($_this, 'status_changed'), 10, 3);
 		return $_this;
 	}
@@ -38,9 +49,8 @@ class wappi_woocommerce {
 		add_submenu_page('woocommerce', 'Whatsapp и Telegram уведомления через Wappi', 'Wappi', 'manage_woocommerce', 'wappi_settings', array(&$this,'options'));
 	}
 
-	public static function activate()
-	{
-		register_uninstall_hook( __FILE__, 'wappi_woocommerce::uninstall' );
+	public static function activate() {
+		register_uninstall_hook( __FILE__, 'wappi_woocommerce::uninstall');
 	}
 
 	public static function uninstall() {
@@ -61,20 +71,20 @@ class wappi_woocommerce {
 	private function _get_parameters()
 	{
 		return array(
-			'apikey' => get_option('wappi_apikey'),
-			'platform' => get_option('wappi_platform'),
-			'sender' => get_option('wappi_sender'),
-			'vendor_phone' => get_option('wappi_vendor_phone'),
-			'vendor_status1' => get_option('wappi_vendor_status1','processing'),
-			'vendor_msg1' => get_option('wappi_vendor_msg1', 'Поступил заказ на сумму {SUM}. Номер заказа {NUM}'),
-			'vendor_status2' => get_option('wappi_vendor_status2','cancelled,failed'),
-			'vendor_msg2' => get_option('wappi_vendor_msg2','Статус заказа изменился на {NEW_STATUS}. Номер заказа {NUM}'),
-			'shopper_status1' => get_option('wappi_shopper_status1', 'processing'),
-			'shopper_msg1' => get_option('wappi_shopper_msg1','Ваш заказ на сумму {SUM} принят. Номер заказа {NUM}'),
-			'shopper_status2' => get_option('wappi_shopper_status2','completed'),
-			'shopper_msg2' => get_option('wappi_shopper_msg2','Статус вашего заказа изменился на {NEW_STATUS}. Номер заказа {NUM}'),
-			'shopper_status3' => get_option('wappi_shopper_status3',''),
-			'shopper_msg3' => get_option('wappi_shopper_msg3','')
+			'apikey' => sanitize_text_field(get_option('wappi_apikey')),
+			'platform' => sanitize_text_field(get_option('wappi_platform')),
+			'sender' => sanitize_text_field(get_option('wappi_sender')),
+			'vendor_phone' => sanitize_text_field(get_option('wappi_vendor_phone')),
+			'vendor_status1' => sanitize_text_field(get_option('wappi_vendor_status1', 'processing')),
+			'vendor_msg1' => sanitize_text_field(get_option('wappi_vendor_msg1', 'Поступил заказ на сумму {SUM}. Номер заказа {NUM}')),
+			'vendor_status2' => sanitize_text_field(get_option('wappi_vendor_status2', 'cancelled,failed')),
+			'vendor_msg2' => sanitize_text_field(get_option('wappi_vendor_msg2', 'Статус заказа изменился на {NEW_STATUS}. Номер заказа {NUM}')),
+			'shopper_status1' => sanitize_text_field(get_option('wappi_shopper_status1', 'processing')),
+			'shopper_msg1' => sanitize_text_field(get_option('wappi_shopper_msg1', 'Ваш заказ на сумму {SUM} принят. Номер заказа {NUM}')),
+			'shopper_status2' => sanitize_text_field(get_option('wappi_shopper_status2', 'completed')),
+			'shopper_msg2' => sanitize_text_field(get_option('wappi_shopper_msg2', 'Статус вашего заказа изменился на {NEW_STATUS}. Номер заказа {NUM}')),
+			'shopper_status3' => sanitize_text_field(get_option('wappi_shopper_status3', '')),
+			'shopper_msg3' => sanitize_text_field(get_option('wappi_shopper_msg3', ''))
 		);
 	}
 
@@ -88,9 +98,9 @@ class wappi_woocommerce {
 					$v = '';
 					if (isset($_POST[$k])) {
 						if ( is_string($_POST[$k]) ) {
-							$v = sanitize_text_field( $_POST[ $k ] );
+							$v = sanitize_text_field( $_POST[$k] );
 						} else if ( is_array($_POST[$k]) ) {
-							$v = sanitize_text_field( implode(',', $_POST[$k]) );
+							$v = sanitize_text_field( implode(',', array_map('sanitize_text_field', $_POST[$k])) );
 						}
 					}
 					update_option('wappi_' . $k, $v);
@@ -135,7 +145,7 @@ class wappi_woocommerce {
 				<form method="post" id="mainform" action="<?php echo esc_attr(admin_url('admin.php?page=wappi_settings')) ?>">
 					<?php wp_nonce_field('wappi_settings_nonce_action', 'wappi_settings_nonce_field'); ?>
 					<h2>Whatsapp или Telegram оповещения о заказах через Wappi</h2>
-					<img src="/../wp-content/plugins/wappi/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
+					<img src="/../wp-content/plugins/wappi_send_message_woocommerce/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
 					<h3>Как пользоваться</h3>
 					<ol>
 						<li>Перейдите на <a href="https://wappi.pro/">wappi.pro</a> и зарегистрируйтесь</li>
@@ -297,30 +307,29 @@ class wappi_woocommerce {
 
 	private function _init_checkboxes( $name, $selected )
 	{  
-		$selected = explode(',',$selected);
-
+		$selected = explode(',', $selected);
 		$r = '';
 		foreach( wc_get_order_statuses() as $k => $v ) {
-			$k = substr( $k, 3 );
-			$r .= '<label><input type="checkbox" name="'.$name.'[]"'.( in_array( $k, $selected, true ) ? ' checked="checked"' : '').' value="'.$k.'" /> '.$v.'</label>&nbsp;&nbsp;';
+			$k = substr($k, 3);
+			$r .= '<label><input type="checkbox" name="'.esc_attr($name).'[]"'.(in_array($k, $selected, true) ? ' checked="checked"' : '').' value="'.esc_attr($k).'" /> '.esc_html($v).'</label>&nbsp;&nbsp;';
 		}
 		return $r;
 	}
 
-		/**
-	 * @param $phone
-	 * @param $message
-	 * @param $order WC_Order
-	 * @param $old_status
-	 * @param $new_status
+	/**
+	 * Send message in whatsapp or telegram through the Wappi API.
+	 *
+	 * @param string $phone recipient phone number.
+	 * @param string $message test message.
+	 * @param WC_Order $order WooCommerce order object.
+	 * @param string $old_status old order status.
+	 * @param string $new_status new order status.
 	 *
 	 * @return void
 	 */
-	
-	private function _send($phone, $message, $order, $old_status, $new_status ) 
+	private function _send($phone, $message, $order, $old_status, $new_status)
 	{
-		//file_put_contents( __FILE__.'.log', print_r( $order, true) );
-		$search  = array(
+		$search = array(
 			'{NUM}',
 			'{FNUM}',
 			'{SUM}',
@@ -341,69 +350,82 @@ class wappi_woocommerce {
 			$order->get_order_number(),
 			'№' . $order->get_order_number(),
 			$order->get_total(),
-			wp_strip_all_tags( $order->get_formatted_order_total( false, false ) ),
+			wp_strip_all_tags($order->get_formatted_order_total(false, false)),
 			$order->get_billing_email(),
 			$order->get_billing_phone(),
 			($s = $order->get_shipping_first_name()) ? $s : $order->get_billing_first_name(),
 			($s = $order->get_shipping_last_name()) ? $s : $order->get_billing_last_name(),
-			($s = $order->get_shipping_city()) ? $s : $order->get_shipping_city(),
+			($s = $order->get_shipping_city()) ? $s : $order->get_billing_city(),
 			trim(
-				(($s = $order->get_shipping_address_1()) ? $s : $order->get_billing_address_1())
+				($s = $order->get_shipping_address_1()) ? $s : $order->get_billing_address_1())
 				.' '
-				.(($s = $order->get_shipping_address_2()) ? $s : $order->get_billing_address_2())
+				.(($s = $order->get_shipping_address_2()) ? $s : $order->get_billing_address_2()
 			),
-			get_option( 'blogname' ),
-			wc_get_order_status_name( $old_status ),
-			wc_get_order_status_name( $new_status ),
+			get_option('blogname'),
+			wc_get_order_status_name($old_status),
+			wc_get_order_status_name($new_status),
 			$order->get_customer_note()
 		);
 
-		if ( strpos( $message, '{ITEMS}' ) !== false ) {
-			$items     = $order->get_items();
+		if (strpos($message, '{ITEMS}') !== false) {
+			$items = $order->get_items();
 			$items_str = '';
-			foreach ( $items as $i ) {
+			foreach ($items as $i) {
 				/* @var $i WC_Order_Item_Product */
 				$name = $i['name'];
-				if ( ( $_p = $i->get_product() ) && ( $sku = $_p->get_sku() ) ) {
+				if ($_p = $i->get_product() && $sku = $_p->get_sku()) {
 					$name = $sku . ' ' . $name;
 				}
-				$items_str .= "\n" . $name . ': ' . $i['qty'] . 'x' . $order->get_item_total( $i ) . '=' . $order->get_line_total( $i );
+				$items_str .= "\n" . $name . ': ' . $i['qty'] . 'x' . $order->get_item_total($i) . '=' . $order->get_line_total($i);
 			}
 			$sh = $order->get_shipping_methods();
-			foreach ( $sh as $i ) {
-				$items_str .= "\n" . __( 'Shipping', 'woocommerce' ) . ': ' . $i['name'] . '=' . $i['cost'];
+			foreach ($sh as $i) {
+				$items_str .= "\n" . __('Shipping', 'woocommerce') . ': ' . $i['name'] . '=' . $i['cost'];
 			}
 			$items_str .= "\n";
-			$search[]  = '{ITEMS}';
-			$replace[] = wp_strip_all_tags( $items_str );
+			$search[] = '{ITEMS}';
+			$replace[] = wp_strip_all_tags($items_str);
 		}
 
-		if ( $meta = get_post_meta( $order->get_id() ) ) {
-			foreach( $meta as $k => $v ) {
-				$search[] = '{'.$k.'}';
+		if ($meta = get_post_meta($order->get_id())) {
+			foreach ($meta as $k => $v) {
+				$search[] = '{' . $k . '}';
 				$replace[] = $v[0];
 			}
 		}
 
-		foreach ( $replace as $k => $v ) {
-			$replace[ $k ] = html_entity_decode( $v );
+		foreach ($replace as $k => $v) {
+			$replace[$k] = html_entity_decode($v);
 		}
-		$message = str_replace( $search, $replace, $message );
-		$message = preg_replace('/\s?\{[^}]+\}/','', $message ); // remove unknown {VAR}
-		$message = trim( $message );
-		$message = mb_substr( $message, 0, 670 );
-		$this->send( $phone, $message );
+		$message = str_replace($search, $replace, $message);
+		$message = preg_replace('/\s?\{[^}]+\}/', '', $message);
+		$message = trim($message);
+		$message = mb_substr($message, 0, 670);
+		$this->send($phone, $message);
 	}
 
-	public function send( $phone, $message ) {
+	/**
+	 * Send message in whatsapp or telegram through the Wappi API.
+	 *
+	 * @param string $phone recipient's phone number.
+	 * @param string $message text message.
+	 *
+	 * @return void
+	 */
+	public function send($phone, $message) {
 		$profile_id = get_option('wappi_sender');
 		$this->_post($phone, $message, $profile_id);
 	}
 
+	/**
+	 * Getting profile information through the Wappi API.
+	 *
+	 * @return array profile info.
+	 */
 	private function _get_profile_info() {
-		$profile_id = get_option('wappi_sender');
-		$apikey = get_option('wappi_apikey');
-		$url = 'https://wappi.pro/api/sync/get/status?profile_id=' . urlencode($profile_id);
+		$profile_id = sanitize_text_field(get_option('wappi_sender'));
+		$apikey = sanitize_text_field(get_option('wappi_apikey'));
+		$url = esc_url_raw('https://wappi.pro/api/sync/get/status?profile_id=' . urlencode($profile_id));
 
 		$args = array(
 			'method' => 'GET',
@@ -429,16 +451,21 @@ class wappi_woocommerce {
 		return $data;		
 	}
 
+	/**
+	 * Save info (profile ID) about user from download statistic in Wappi API.
+	 *
+	 * @return void
+	 */
 	private function _save_info() {
-		$apikey = get_option('wappi_apikey');
-		$profile_id = get_option('wappi_sender');
+		$apikey = sanitize_text_field(get_option('wappi_apikey'));
+		$profile_id = sanitize_text_field(get_option('wappi_sender'));
 		$message_json = json_encode(array(
-			'url' => $_SERVER['HTTP_REFERER'],
+			'url' => esc_url_raw($_SERVER['HTTP_REFERER']),
 			'module' => 'wp',
 			'profile_uuid' => $profile_id,
 		));
 
-		$url = 'https://dev.wappi.pro/tapi/addInstall?profile_id=' . urlencode($profile_id);
+		$url = esc_url_raw('https://dev.wappi.pro/tapi/addInstall?profile_id=' . urlencode($profile_id));
 
 		$args = array(
 			'body' => $message_json,
@@ -455,23 +482,31 @@ class wappi_woocommerce {
 
 		if (is_wp_error($response)) {
 			echo '<span style="color: red">' . esc_html('Error: ' . $response->get_error_message()) . '</span>';
-		} else if (!(json_last_error() === JSON_ERROR_NONE)) {
+		} else if (json_last_error() !== JSON_ERROR_NONE) {
 			echo '<span style="color: red">' . esc_html('Ошибка JSON: ' . json_last_error_msg()) . '</span>';
 		}
 	}
+
+	/**
+	 * Send message in whatsapp or telegram through the Wappi API.
+	 *
+	 * @param string $phone recipient's phone number.
+	 * @param string $message text message.
+	 * @param string $profile_id profile ID in Wappi service.
+	 */
 	private function _post($phone, $message, $profile_id) 
 	{
-		$platform = get_option('wappi_platform');
-		$apikey = get_option('wappi_apikey');
-		$phone_array = explode(', ',$phone);
+		$platform = sanitize_text_field(get_option('wappi_platform'));
+		$apikey = sanitize_text_field(get_option('wappi_apikey'));
+		$phone_array = explode(', ', sanitize_text_field($phone));
 		
 		foreach ($phone_array as $phone) {
 			$message_json = json_encode(array(
-				'recipient' => $phone,
-				'body' => $message
+				'recipient' => sanitize_text_field($phone),
+				'body' => sanitize_text_field($message)
 			));
 		
-			$url = 'https://wappi.pro/' . $platform . 'api/sync/message/send?profile_id=' . urlencode($profile_id);
+			$url = esc_url_raw('https://wappi.pro/' . $platform . 'api/sync/message/send?profile_id=' . urlencode($profile_id));
 		
 			$args = array(
 				'body' => $message_json,
