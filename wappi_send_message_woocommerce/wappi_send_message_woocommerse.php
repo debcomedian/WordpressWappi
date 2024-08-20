@@ -7,14 +7,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0
+Version: 1.0.1
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Requires Plugins: woocommerce
 */
 
-// Подключение стилей
 function wappi_enqueue_styles() {
     wp_register_style('wappi_styles', plugins_url('styles/style.css', __FILE__));
     wp_enqueue_style('wappi_styles');
@@ -97,9 +97,9 @@ class wappi_woocommerce {
 				foreach( $p as $k => $vv ) {
 					$v = '';
 					if (isset($_POST[$k])) {
-						if ( is_string($_POST[$k]) ) {
+						if (is_string($_POST[$k])) {
 							$v = wp_kses_post($_POST[$k]);
-						} else if ( is_array($_POST[$k]) ) {
+						} else if (is_array($_POST[$k])) {
 							$v = implode(',', array_map('wp_kses_post', $_POST[$k]));
 						}
 					}
@@ -130,92 +130,81 @@ class wappi_woocommerce {
 			array( 'Оповещение покупателю о смене статуса (дополнительно)', 'shopper_status3', 'shopper_msg3' )
 		);
 ?>
-		<html>
-		<head>
-			<style>
-			li {
-				font-size: 1.4em;
-				padding-bottom: 5px;
-			}
-			</style>
-		</head>
-		<body>
-			<div class="wrap woocommerce">
+		<div class="wrap woocommerce">
 
-				<form method="post" id="mainform" action="<?php echo esc_attr(admin_url('admin.php?page=wappi_settings')) ?>">
-					<?php wp_nonce_field('wappi_settings_nonce_action', 'wappi_settings_nonce_field'); ?>
-					<h2>Whatsapp или Telegram оповещения о заказах через Wappi</h2>
-					<img src="/../wp-content/plugins/wappi_send_message_woocommerce/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
-					<h3>Как пользоваться</h3>
-					<ol>
-						<li>Перейдите на <a href="https://wappi.pro/">wappi.pro</a> и зарегистрируйтесь</li>
-						<li>Добавьте необходимый профиль и авторизуйте ваш номер, с которого будут отправляться оповещения</li>
-						<li>В личном кабинете посмотрите токен API и ID профиля и возвращайтесь к настройкам</li>
-						<li>Заполните необходимые поля и нажмите Сохранить</li>
-						<li>Если возникли проблемы - воспользуйтесь <a href="https://wappi.pro/integrations/wordpress">инструкцией</a></li>
-					</ol>
+			<form method="post" id="mainform" action="<?php echo esc_attr(admin_url('admin.php?page=wappi_settings')) ?>">
+				<?php wp_nonce_field('wappi_settings_nonce_action', 'wappi_settings_nonce_field'); ?>
+				<h2>Whatsapp или Telegram оповещения о заказах через Wappi</h2>
+				<img src="/../wp-content/plugins/wappi_send_message_woocommerce/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
+				<h3>Как пользоваться</h3>
+				<ol>
+					<li>Перейдите на <a href="https://wappi.pro/">wappi.pro</a> и зарегистрируйтесь</li>
+					<li>Добавьте необходимый профиль и авторизуйте ваш номер, с которого будут отправляться оповещения</li>
+					<li>В личном кабинете посмотрите токен API и ID профиля и возвращайтесь к настройкам</li>
+					<li>Заполните необходимые поля и нажмите Сохранить</li>
+					<li>Если возникли проблемы - воспользуйтесь <a href="https://wappi.pro/integrations/wordpress">инструкцией</a></li>
+				</ol>
 
-					<?php echo (isset($_GET['status']) && $_GET['status'] === 'updated' ) ? '<p style="color: green">Настройки обновлены</p>' : '' ?>
-					<?php echo ( $last_e = get_option('wappi_last_error')) ? '<p>Последняя ошибка:<br/>'.esc_html( $last_e ).'</p>' : '' ?>
-					<table class="form-table">
-						<tr><th><label for="apikey">Токен API</label></th><td><input title="40-символьный ключ доступа к Wappi" 
-						required name="apikey" pattern=".{40}" id="apikey" value="<?php echo esc_attr( $p['apikey'] ) ?>" size="43"/><br/>
-						<small>Укажите ваш токен, найти можно <a href="https://wappi.pro/dashboard" target="_blank">здесь</a></small></td></tr>
-						<tr><th><label>Статус приложения:</label></th><td><?php
-								if ( $p['apikey']) {
-									$this->_output_send_status($p, $message);
-								} else
-									echo '<span style="color: red">Нужно ввести API-ключ</span>';
-								?></td></tr>
-						<tr><th><label for="sender">ID профиля</label></th><td><input required name="sender" id="sender" value="<?php echo esc_attr( $p['sender'] ) ?>" /><br/>
-						<small>Узнать свой ID можно в личном кабинете Wappi</td></tr>
-						<tr><th><label for="vendor_phone">Номер продавца</label></th><td><input title="79008007060, 79008007060" required name="vendor_phone" pattern="^\d{11}(, \d{11})*$" id="vendor_phone" value="<?php echo esc_attr( $p['vendor_phone'] )  ?>" size="50"/>
-						<br/><small>Например, 79991112233, можно указать несколько через запятую.</small></td></tr>
-					</table>
-					<input type="submit" class="button-secondary" name="test" value="Отправить тестовое сообщение продавцу" />
-					<table class="form-table">
-						<?php foreach( $msg as $m) { ?>
-						<tr><th><label for="<?php echo esc_attr( $m[2] ) ?>"><?php echo esc_html( $m[0] ) ?></label></th>
-							<td>
-								<?php 
-								// Вывод статусов
-								$status_text = sprintf('Статус:&nbsp;&nbsp;%s', $this->_init_checkboxes($m[1], $p[$m[1]]));
-								$allowed_html = array(
-									'label' => array(),
-									'input' => array(
-										'type' => array(),
-										'name' => array(),
-										'value' => array(),
-										'checked' => array()
-									),
-								);
-								echo wp_kses($status_text, $allowed_html);
-								?>
-								<div style="display: flex; align-items: center;">
-									<label for="<?php echo esc_attr( $m[2] ) ?>" style="margin-right: 10px;">Текст:</label>
-									<textarea name="<?php echo esc_attr( $m[2] ) ?>" id="<?php echo esc_attr( $m[2] ) ?>" rows="5" cols="80"><?php echo esc_textarea( $p[ $m[2] ] ); ?></textarea>
-								</div>
+				<?php echo (isset($_GET['status']) && $_GET['status'] === 'updated' ) ? '<p style="color: green">Настройки обновлены</p>' : '' ?>
+				<?php echo ( $last_e = get_option('wappi_last_error')) ? '<p>Последняя ошибка:<br/>'.esc_html( $last_e ).'</p>' : '' ?>
+				<table class="form-table">
+					<tr><th><label for="apikey">Токен API</label></th><td><input title="40-символьный ключ доступа к Wappi" 
+					required name="apikey" pattern=".{40}" id="apikey" value="<?php echo esc_attr( $p['apikey'] ) ?>" size="43"/><br/>
+					<small>Укажите ваш токен, найти можно <a href="https://wappi.pro/dashboard" target="_blank">здесь</a></small></td></tr>
+					<tr><th><label>Статус приложения:</label></th><td><?php
+							if ( $p['apikey']) {
+								$this->_output_send_status($p, $message);
+							} else
+								echo '<span style="color: red">Нужно ввести API-ключ</span>';
+							?></td></tr>
+					<tr><th><label for="sender">ID профиля</label></th><td><input required name="sender" id="sender" value="<?php echo esc_attr( $p['sender'] ) ?>" /><br/>
+					<small>Узнать свой ID можно в личном кабинете Wappi</td></tr>
+					<tr><th><label for="vendor_phone">Номер продавца</label></th><td><input title="79008007060, 79008007060" required name="vendor_phone" pattern="^\d{11}(, \d{11})*$" id="vendor_phone" value="<?php echo esc_attr( $p['vendor_phone'] )  ?>" size="50"/>
+					<br/><small>Например, 79991112233, можно указать несколько через запятую.</small></td></tr>
+				</table>
+				<input type="submit" class="button-secondary" name="test" value="Отправить тестовое сообщение продавцу" />
+				<table class="form-table">
+					<?php foreach( $msg as $m) { ?>
+					<tr>
+						<th><label for="<?php echo esc_attr( $m[2] ) ?>"><?php echo esc_html( $m[0] ) ?></label></th>
+						<td>
+							<?php 
+							// Вывод статусов
+							$status_text = sprintf('Статус:&nbsp;&nbsp;%s', $this->_init_checkboxes($m[1], $p[$m[1]]));
+							$allowed_html = array(
+								'label' => array(),
+								'input' => array(
+									'type' => array(),
+									'name' => array(),
+									'value' => array(),
+									'checked' => array()
+								),
+							);
+							echo wp_kses($status_text, $allowed_html);
+							?>
+							<div style="display: flex; align-items: center;">
+								<label for="<?php echo esc_attr( $m[2] ) ?>" style="margin-right: 10px;">Текст:</label>
+								<textarea name="<?php echo esc_attr( $m[2] ) ?>" id="<?php echo esc_attr( $m[2] ) ?>" rows="5" cols="80"><?php echo esc_textarea( $p[ $m[2] ] ); ?></textarea>
+							</div>
 
-							</td>
-						</tr>
-							<?php }	?>
-						
-						<tr><th><label>Можно вставить переменные</label></th><td>
-							<pre><code>{NUM} - номер заказа, {FNUM} - №номерзаказа, {SUM} - сумма заказа, {FSUM} - суммазаказа руб., {EMAIL} - эл.почта покупателя,
-	{PHONE} - телефон покупателя, {FIRSTNAME} - имя покупателя, {LASTNAME} - фамилия покупателя,
-	{CITY} - город доставки, {ADDRESS} - адрес доставки, {BLOGNAME} - название блога/магазина,
-	{OLD_STATUS} - старый статус, {NEW_STATUS} - новый статус, {ITEMS} - список заказанных товаров
-	{COMMENT} - комментарий покупателя к заказу
-	{TRACKING_NUMBER} => Трекинговый номер, {TRACKING_URL} => URL для отслеживания
-	<strong>{Произвольное поле}</strong> - вставка значения произвольного поля, которое вы или плагины добавили к заказу, 
-	например, {post_tracking_number} или {ems_tracking_number} если установлен плагин 
-	. Чувствительно к регистру символов!</code></pre></td></tr>
-					</table>
-					<input type="submit" class="button-primary" value="Сохранить">
-				</form>
-			</div>
-		</body>
-		</html>
+						</td>
+					</tr>
+						<?php }	?>
+					
+					<tr><th><label>Можно вставить переменные</label></th><td>
+						<pre><code>{NUM} - номер заказа, {FNUM} - №номерзаказа, {SUM} - сумма заказа, {FSUM} - суммазаказа руб., {EMAIL} - эл.почта покупателя,
+{PHONE} - телефон покупателя, {FIRSTNAME} - имя покупателя, {LASTNAME} - фамилия покупателя,
+{CITY} - город доставки, {ADDRESS} - адрес доставки, {BLOGNAME} - название блога/магазина,
+{OLD_STATUS} - старый статус, {NEW_STATUS} - новый статус, {ITEMS} - список заказанных товаров
+{COMMENT} - комментарий покупателя к заказу
+{TRACKING_NUMBER} => Трекинговый номер, {TRACKING_URL} => URL для отслеживания
+<strong>{Произвольное поле}</strong> - вставка значения произвольного поля, которое вы или плагины добавили к заказу, 
+например, {post_tracking_number} или {ems_tracking_number} если установлен плагин 
+. Чувствительно к регистру символов!</code></pre></td></tr>
+				</table>
+				<input type="submit" class="button-primary" value="Сохранить">
+			</form>
+		</div>
 <?php
 	}
 
@@ -369,7 +358,7 @@ class wappi_woocommerce {
 			'{TRACKING_NUMBER}',
 			'{TRACKING_URL}'
 		);
-
+		
 		$replace = array(
 			$order->get_order_number(),
 			'№' . $order->get_order_number(),
@@ -390,6 +379,7 @@ class wappi_woocommerce {
 			wc_get_order_status_name($new_status),
 			$order->get_customer_note()
 		);
+		
 		$tracking_number = '';
 		$tracking_url = '';
 		
@@ -428,22 +418,23 @@ class wappi_woocommerce {
 			$search[] = '{ITEMS}';
 			$replace[] = wp_strip_all_tags($items_str);
 		}
-
+		
 		if ($meta = get_post_meta($order->get_id())) {
 			foreach ($meta as $k => $v) {
 				$search[] = '{' . $k . '}';
 				$replace[] = $v[0];
 			}
 		}
-
+		
 		foreach ($replace as $k => $v) {
 			$replace[$k] = html_entity_decode($v);
 		}
+		
 		$message = str_replace($search, $replace, $message);
 		$message = preg_replace('/\s?\{[^}]+\}/', '', $message);
 		$message = trim($message);
 		$message = mb_substr($message, 0, 670);
-		$this->send($phone, $message);
+		$this->send($phone, $message);		
 	}
 
 	/**

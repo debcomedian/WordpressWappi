@@ -1,58 +1,67 @@
-=== Wappi: уведомления в мессенджеры о заказах WooCommerce ===
-Contributors: support@wappi.pro
-Tags: woocommerce, whatsapp, telegram, notification, уведомления
+=== Wappi – Send Notifications via personal WhatsApp and Telegram ===
+Contributors: wappipro
+Tags: woocommerce, whatsapp, telegram, notifications, woocommerce whatsapp
 Requires at least: 3.8
-Tested up to: 6.5
-Stable tag: 1.0
+Tested up to: 6.6.1
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-		
-Автоматические Whatsapp и Telegram уведомления о статусах заказов администраторам и покупателям интернет-магазина WooCommerce
+Requires Plugins: woocommerce
+
+        
+Send WhatsApp and Telegram notifications for Woocommerce orders by connecting your personal Whatsapp or Telegram via QR code.
 
 == Description ==
 
-С помощью плагина “Wappi: Whatsapp и Telegram уведомления WooCommerce” Вы можете отправлять автоматические Whatsapp и Telegram уведомления о статусах заказов администраторам и покупателям интернет-магазина, работающего на платформе WordPress WooCommerce.
+Using the "Wappi – Send Notifications via personal WhatsApp and Telegram” plugin You can send automatic Whatsapp and Telegram notifications about order statuses to administrators and customers of an online store running on the WordPress WooCommerce platform.
 
-Обратите внимание - это НЕ Whatsapp Business API (WABA), а подключение вашего собственного Whatsapp аккаунта через сканирование QR кода.
+This plugin requires you to have an account at [Wappi.pro](https://wappi.pro/). Create your account now by [clicking here](https://wappi.pro/registration). The free trial period is 5 days, then the cost starts from $5 per month 
 
-Возможности:
+*Please note - this is NOT the Whatsapp Business API (WABA), but the connection of your own Whatsapp account through scanning a QR code.*
 
-* Поддержка модуля Wordpress WooCommerce.
+Features:
 
-* Отправка уведомлений с вашего собственного аккаунта Whatsapp. Подключите ваш личный Whatsapp аккаунт, отсканировав QR код, и отправляйте с него автоматические сообщения.
+* Wordpress WooCommerce module support.
 
-* Отправка уведомлений с вашего собственного аккаунта Telegram. Подключите ваш личный Telegram аккаунт (не бот) и отправляйте с него автоматические сообщения.
+* Sending notifications from your own Whatsapp account. Connect your personal Whatsapp account by scanning the QR code and send automatic messages from it.
 
-* Автоматические оповещения администраторам. Отправка уведомлений администратору или продавцу о новых заказах и смене статусов заказа. Можно указать несколько произвольных номеров
+* Sending notifications from your own Telegram account. Connect your personal Telegram account (not a bot) and send automatic messages from it.
 
-* Автоматические оповещения покупателям. Отправка уведомлений покупателям о подтверждении заказа и смене статусов заказа
+* Automatic notifications to administrators. Sending notifications to the administrator or the seller about new orders and changing order statuses. You can specify several arbitrary numbers.
 
-* Установка индивидуальных шаблонов уведомлений с переменными. Для каждого уведомления можно установить свой собственный текст с использованием переменных: продукты, количество, цена, имя, телефон, адрес, произвольные поля (трек-номер)
+* Automatic notifications to customers. Sending notifications to customers about order confirmation and order status changes.
 
-[САЙТ](https://wappi.pro/) | [Поддержка](https://t.me/wappi_support)
+* Setting individual notification templates with variables. For each notification, you can set your own text using variables: products, quantity, price, name, phone number, address, arbitrary fields (track number).
+
+[SITE](https://wappi.pro/) | [Support](https://t.me/wappi_support) | [User agreement](https://wappi.pro/oferta) | [Privacy policy](https://wappi.pro/privacy)
 
 == Installation ==
-1. Убедитесь, что у вас установлена последняя версия плагина [WooCommerce](http://www.woothemes.com/woocommerce).
-2. Существует несколько вариантов установки:
-    2.1 Через каталог плагинов:
-        * в административной панели перейдите на страницу *Плагины* и нажмите *Добавить новый*
-        * найдите плагин Wappi: Whatsapp и Telegram уведомления WooCommerce
-        * нажмите кнопку *Установить*
-    2.2 Через консоль:
-        * скачайте плагин здесь https://wappi.pro/integrations/wordpress
-        * в административной панели перейдите на страницу *Плагины* и нажмите *Добавить новый*
-        * перейдите на вкладку *Загрузить*, нажмите Обзор и выберите архив с плагином. Нажмите *Установить*
-    2.3 По FTP:
-        * скачайте плагин здесь https://wappi.pro/integrations/wordpress
-        * распакуйте архив и загрузите содержимое по FTP в папку ваш-домен/wp-content/plugins
-        * в административной панели перейдите на страницу *Плагины* и нажмите *Установить* рядом с появившемся плагином
-3. После того, как плагин будет установлен, нажмите *Активировать плагин*.
-4. Наведите курсор на пункт меню *WooCommerce* и выберите *Wappi*.
-5. В настройках введите Токен API и id профиля (найти можно в https://wappi.pro/dashboard), а также номер whatsapp продавца.
-6. Если это необходимо, то укажите статусы для каждого вида уведомлений и текст.
-7. Нажмите кнопку Сохранить.
+1. Make sure that you have the latest version of the plugin installed [WooCommerce](http://www.woothemes.com/woocommerce).
+2. There are several installation options:
+    2.1 Via the plugin catalog:
+        * in the admin panel, go to the *Plugins* page and click *Add New*
+        * find the plugin "Wappi – Send Notifications via personal WhatsApp and Telegram"
+        * click the button *Install*
+    2.2 Via the console:
+        * download the plugin here - [Download](https://wordpress.org/plugins/wappi/)
+        * in the admin panel, go to the *Plugins* page and click *Add New*
+        * go to the *Download* tab, click Browse and select the archive with the plugin. Click *Install*
+    2.3 Via FTP:
+        * download the plugin here - [Download](https://wordpress.org/plugins/wappi/)
+        * unzip the archive and upload the contents via FTP to folder your-domain/wp-content/plugins
+        * in the admin panel, go to the *Plugins* page and click *Install* next to the plugin that appears
+3. After the plugin is installed, click *Activate Plugin*.
+4. Hover over the menu item *WooCommerce* and select *Wappi*.
+5. In the settings, enter the API Token and profile id (you can find it in [dashboard](https://wappi.pro/dashboard)), as well as the seller's whatsapp number.
+6. If necessary, specify the statuses for each type of notification and the text.
+7. Click the Save button.
 
 == Changelog ==
 = 1.0 =
-Первая версия
+The first version
+= 1.0.1 =
+Added plugin requirement WooCommerce
+Added variables for "Orders Tracking for WooCommerce" plugin
+Added line multiplicity in templates
+Tested up to 6.6.1 WordPress version
