@@ -76,15 +76,15 @@ class wappi_woocommerce {
 			'sender' => sanitize_text_field(get_option('wappi_sender')),
 			'vendor_phone' => sanitize_text_field(get_option('wappi_vendor_phone')),
 			'vendor_status1' => sanitize_text_field(get_option('wappi_vendor_status1', 'processing')),
-			'vendor_msg1' => sanitize_text_field(get_option('wappi_vendor_msg1', 'Поступил заказ на сумму {SUM}. Номер заказа {NUM}')),
+			'vendor_msg1' => wp_kses_post(get_option('wappi_vendor_msg1', 'Поступил заказ на сумму {SUM}. Номер заказа {NUM}')),
 			'vendor_status2' => sanitize_text_field(get_option('wappi_vendor_status2', 'cancelled,failed')),
-			'vendor_msg2' => sanitize_text_field(get_option('wappi_vendor_msg2', 'Статус заказа изменился на {NEW_STATUS}. Номер заказа {NUM}')),
+			'vendor_msg2' => wp_kses_post(get_option('wappi_vendor_msg2', 'Статус заказа изменился на {NEW_STATUS}. Номер заказа {NUM}')),
 			'shopper_status1' => sanitize_text_field(get_option('wappi_shopper_status1', 'processing')),
-			'shopper_msg1' => sanitize_text_field(get_option('wappi_shopper_msg1', 'Ваш заказ на сумму {SUM} принят. Номер заказа {NUM}')),
+			'shopper_msg1' => wp_kses_post(get_option('wappi_shopper_msg1', 'Ваш заказ на сумму {SUM} принят. Номер заказа {NUM}')),
 			'shopper_status2' => sanitize_text_field(get_option('wappi_shopper_status2', 'completed')),
-			'shopper_msg2' => sanitize_text_field(get_option('wappi_shopper_msg2', 'Статус вашего заказа изменился на {NEW_STATUS}. Номер заказа {NUM}')),
+			'shopper_msg2' => wp_kses_post(get_option('wappi_shopper_msg2', 'Статус вашего заказа изменился на {NEW_STATUS}. Номер заказа {NUM}')),
 			'shopper_status3' => sanitize_text_field(get_option('wappi_shopper_status3', '')),
-			'shopper_msg3' => sanitize_text_field(get_option('wappi_shopper_msg3', ''))
+			'shopper_msg3' => wp_kses_post(get_option('wappi_shopper_msg3', ''))
 		);
 	}
 
@@ -98,19 +98,19 @@ class wappi_woocommerce {
 					$v = '';
 					if (isset($_POST[$k])) {
 						if ( is_string($_POST[$k]) ) {
-							$v = sanitize_text_field( $_POST[$k] );
+							$v = wp_kses_post($_POST[$k]);
 						} else if ( is_array($_POST[$k]) ) {
-							$v = sanitize_text_field( implode(',', array_map('sanitize_text_field', $_POST[$k])) );
+							$v = implode(',', array_map('wp_kses_post', $_POST[$k]));
 						}
 					}
 					update_option('wappi_' . $k, $v);
 				}
+				$p = $this->_get_parameters();
 
 				if (!isset($_POST['test']) ) {
 					wp_redirect(admin_url('admin.php?page=wappi_settings&status=updated'));
 					return;
 				}
-				$p = $this->_get_parameters();
 			}
 		}
 
@@ -175,23 +175,29 @@ class wappi_woocommerce {
 					<input type="submit" class="button-secondary" name="test" value="Отправить тестовое сообщение продавцу" />
 					<table class="form-table">
 						<?php foreach( $msg as $m) { ?>
-						<tr><th><label for="<?php echo esc_attr( $m[2] ) ?>"><?php echo esc_html( $m[0] ) ?></label></th><td>
-						<?php 
-						$status_text = sprintf('Статус: %s', $this->_init_checkboxes($m[1], $p[$m[1]]));
-						$allowed_html = array(
-							'label' => array(),
-							'input' => array(
-								'type' => array(),
-								'name' => array(),
-								'value' => array(),
-								'checked' => array()
-							),
-						);
-						echo esc_html('Статус: ') . wp_kses($status_text, $allowed_html);
-						?><br/>
-						Текст: <input name="<?php echo esc_attr( $m[2] ) ?>" id="<?php echo esc_attr( $m[2] ) ?>" value="<?php echo esc_attr( $p[ $m[2] ] )  ?>" size="80" />
-						</td></tr>
+						<tr><th><label for="<?php echo esc_attr( $m[2] ) ?>"><?php echo esc_html( $m[0] ) ?></label></th>
+							<td>
+								<?php 
+								// Вывод статусов
+								$status_text = sprintf('Статус:&nbsp;&nbsp;%s', $this->_init_checkboxes($m[1], $p[$m[1]]));
+								$allowed_html = array(
+									'label' => array(),
+									'input' => array(
+										'type' => array(),
+										'name' => array(),
+										'value' => array(),
+										'checked' => array()
+									),
+								);
+								echo wp_kses($status_text, $allowed_html);
+								?>
+								<div style="display: flex; align-items: center;">
+									<label for="<?php echo esc_attr( $m[2] ) ?>" style="margin-right: 10px;">Текст:</label>
+									<textarea name="<?php echo esc_attr( $m[2] ) ?>" id="<?php echo esc_attr( $m[2] ) ?>" rows="5" cols="80"><?php echo esc_textarea( $p[ $m[2] ] ); ?></textarea>
+								</div>
 
+							</td>
+						</tr>
 							<?php }	?>
 						
 						<tr><th><label>Можно вставить переменные</label></th><td>
@@ -200,6 +206,7 @@ class wappi_woocommerce {
 	{CITY} - город доставки, {ADDRESS} - адрес доставки, {BLOGNAME} - название блога/магазина,
 	{OLD_STATUS} - старый статус, {NEW_STATUS} - новый статус, {ITEMS} - список заказанных товаров
 	{COMMENT} - комментарий покупателя к заказу
+	{TRACKING_NUMBER} => Трекинговый номер, {TRACKING_URL} => URL для отслеживания
 	<strong>{Произвольное поле}</strong> - вставка значения произвольного поля, которое вы или плагины добавили к заказу, 
 	например, {post_tracking_number} или {ems_tracking_number} если установлен плагин 
 	. Чувствительно к регистру символов!</code></pre></td></tr>
@@ -232,11 +239,19 @@ class wappi_woocommerce {
 					'{OLD_STATUS}' => 'Обработка',
 					'{NEW_STATUS}' => 'Выполнен',
 					'{COMMENT}' => 'Код домофона 123, после обеда',
+					'{TRACKING_URL}' => 'http://track.4px.com/query/',
+					'{TRACKING_NUMBER}' => '1234567890',
 					'{' => '*',
 					'}' => '*',
 				);
-				$vendor_phone = sanitize_text_field( $_POST['vendor_phone'] );
-				$message = str_replace( array_keys($data), array_values($data), sanitize_text_field( $_POST['vendor_msg1'] ) );
+				$test_message = "Заказ №{NUM} на сумму {SUM} ({FSUM}) от {FIRSTNAME} {LASTNAME}, город {CITY}, адрес {ADDRESS}. 
+				Контактный email: {EMAIL}, телефон: {PHONE}. 
+				Статус изменен с {OLD_STATUS} на {NEW_STATUS}.
+				Товары: {ITEMS}. 
+				Комментарий клиента: {COMMENT}. 
+				Трек-номер: {TRACKING_NUMBER}. URL для отслеживания: {TRACKING_URL}.
+				Магазин: {BLOGNAME}.";
+				$message = str_replace( array_keys($data), array_values($data), sanitize_text_field( $test_message ) );
 			}
 			$data = $this->_get_profile_info();	
 			if (sizeof($data) > 2) {
@@ -290,6 +305,13 @@ class wappi_woocommerce {
 
 			$o = new WC_Order($order_id);
 
+			// $p['vendor_msg1'] = str_replace("\n", "<br>", $p['vendor_msg1']);
+			// $p['vendor_msg2'] = str_replace("\n", "<br>", $p['vendor_msg2']);
+			// $p['shopper_msg1'] = str_replace("\n", "<br>", $p['shopper_msg1']);
+			// $p['shopper_msg2'] = str_replace("\n", "<br>", $p['shopper_msg2']);
+			// $p['shopper_msg3'] = str_replace("\n", "<br>", $p['shopper_msg3']);			
+							
+
 			// SMS to sender
 			if ( strpos($p['vendor_status1'], $new_status) !== false ) // new order
 				$this->_send( $p['vendor_phone'], $p['vendor_msg1'], $o, $old_status, $new_status );
@@ -311,7 +333,7 @@ class wappi_woocommerce {
 		$r = '';
 		foreach( wc_get_order_statuses() as $k => $v ) {
 			$k = substr($k, 3);
-			$r .= '<label><input type="checkbox" name="'.esc_attr($name).'[]"'.(in_array($k, $selected, true) ? ' checked="checked"' : '').' value="'.esc_attr($k).'" /> '.esc_html($v).'</label>&nbsp;&nbsp;';
+			$r .= '<label>'.esc_html($v).' <input type="checkbox" name="'.esc_attr($name).'[]"'.(in_array($k, $selected, true) ? ' checked="checked"' : '').' value="'.esc_attr($k).'" /></label>&nbsp;&nbsp;';
 		}
 		return $r;
 	}
@@ -343,7 +365,9 @@ class wappi_woocommerce {
 			'{BLOGNAME}',
 			'{OLD_STATUS}',
 			'{NEW_STATUS}',
-			'{COMMENT}'
+			'{COMMENT}',
+			'{TRACKING_NUMBER}',
+			'{TRACKING_URL}'
 		);
 
 		$replace = array(
@@ -366,7 +390,25 @@ class wappi_woocommerce {
 			wc_get_order_status_name($new_status),
 			$order->get_customer_note()
 		);
-
+		$tracking_number = '';
+		$tracking_url = '';
+		
+		foreach ($order->get_items() as $item_id => $item) {
+			$tracking_data = get_metadata('order_item', $item_id, '_vi_wot_order_item_tracking_data', true);
+		
+			if ($tracking_data) {
+				$tracking_data = json_decode($tracking_data, true);
+				if (is_array($tracking_data) && !empty($tracking_data)) {
+					$tracking_number = $tracking_data[0]['tracking_number'] ?? 'Трекинговый номер не найден';
+					$tracking_url = $tracking_data[0]['carrier_url'] ?? 'URL для отслеживания не найден';
+					break;
+				}
+			}
+		}
+		
+		$replace[] = $tracking_number;
+		$replace[] = $tracking_url;
+		
 		if (strpos($message, '{ITEMS}') !== false) {
 			$items = $order->get_items();
 			$items_str = '';
@@ -503,7 +545,7 @@ class wappi_woocommerce {
 		foreach ($phone_array as $phone) {
 			$message_json = json_encode(array(
 				'recipient' => sanitize_text_field($phone),
-				'body' => sanitize_text_field($message)
+				'body' => wp_kses_post($message)
 			));
 		
 			$url = esc_url_raw('https://wappi.pro/' . $platform . 'api/sync/message/send?profile_id=' . urlencode($profile_id));
