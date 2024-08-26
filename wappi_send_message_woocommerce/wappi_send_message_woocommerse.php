@@ -340,6 +340,8 @@ class wappi_woocommerce {
 	 */
 	private function _send($phone, $message, $order, $old_status, $new_status)
 	{
+		global $wpdb;
+
 		$search = array(
 			'{NUM}',
 			'{FNUM}',
@@ -418,14 +420,30 @@ class wappi_woocommerce {
 			$search[] = '{ITEMS}';
 			$replace[] = wp_strip_all_tags($items_str);
 		}
-		
-		if ($meta = get_post_meta($order->get_id())) {
-			foreach ($meta as $k => $v) {
-				$search[] = '{' . $k . '}';
-				$replace[] = $v[0];
+		$order_meta = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT meta_key, meta_value FROM {$wpdb->prefix}wc_orders_meta WHERE order_id = %d",
+				$order->get_id()
+			),
+			ARRAY_A
+		);
+
+		if ($order_meta) {
+			foreach ($order_meta as $meta) {
+				if ($meta['meta_key'][0] != "_") {
+					$search[] = '{' . $meta['meta_key'] . '}';
+					$replace[] = $meta['meta_value'];
+				}
 			}
 		}
-		
+		if ($meta = get_post_meta($order->get_id())) {
+			foreach ($meta as $k => $v) {
+				if ($k[0] != "_") {
+					$search[] = '{' . $k . '}';
+					$replace[] = $v[0];
+				}
+			}
+		}
 		foreach ($replace as $k => $v) {
 			$replace[$k] = html_entity_decode($v);
 		}
