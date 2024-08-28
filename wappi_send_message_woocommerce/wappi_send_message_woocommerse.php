@@ -451,7 +451,7 @@ class wappi_woocommerce {
 		$message = str_replace($search, $replace, $message);
 		$message = preg_replace('/\s?\{[^}]+\}/', '', $message);
 		$message = trim($message);
-		$message = mb_substr($message, 0, 670);
+		$message = mb_substr($message, 0, 5000);
 		$this->send($phone, $message);		
 	}
 
