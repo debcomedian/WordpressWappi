@@ -3,8 +3,8 @@
 **Авторы:** support@wappi.pro  
 **Теги:** woo commerce, woocommerce, ecommerce, whatsapp, telegram, notification, whatsapp notification, telegram notification, уведомления  
 **Минимальная версия:** 3.8  
-**Протестировано до версии:** 6.6.1  
-**Стабильная версия:** 1.0.2  
+**Протестировано до версии:** 6.6.2  
+**Стабильная версия:** 1.0.4  
 **Требуется PHP:** 7.4  
 **Лицензия:** GPLv2 или более поздняя  
 **URI лицензии:** http://www.gnu.org/licenses/gpl-2.0.html  
@@ -70,3 +70,8 @@
 ### 1.0.3
 
 - Увеличена максимальная длина сообщения с 670 до 5000 символов
+
+### 1.0.4
+
+- Добавлены переменные SHIPPING_METHOD и PAYMENT_METHOD
+- Тестирование до версии: 6.6.2 WordPress version
