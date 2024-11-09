@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.1
+Version: 1.0.4
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
@@ -197,6 +197,7 @@ class wappi_woocommerce {
 {CITY} - город доставки, {ADDRESS} - адрес доставки, {BLOGNAME} - название блога/магазина,
 {OLD_STATUS} - старый статус, {NEW_STATUS} - новый статус, {ITEMS} - список заказанных товаров
 {COMMENT} - комментарий покупателя к заказу
+{SHIPPING_METHOD} - способ доставки, выбранный покупателем, {PAYMENT_METHOD} - способ оплаты, выбранный покупателем
 {TRACKING_NUMBER} => Трекинговый номер, {TRACKING_URL} => URL для отслеживания
 <strong>{Произвольное поле}</strong> - вставка значения произвольного поля, которое вы или плагины добавили к заказу, 
 например, {post_tracking_number} или {ems_tracking_number} если установлен плагин 
@@ -230,6 +231,8 @@ class wappi_woocommerce {
 					'{COMMENT}' => 'Код домофона 123, после обеда',
 					'{TRACKING_URL}' => 'http://track.4px.com/query/',
 					'{TRACKING_NUMBER}' => '1234567890',
+					'{SHIPPING_METHOD}' => 'Доставка курьером',
+					'{PAYMENT_METHOD}' => 'Оплата картой',
 					'{' => '*',
 					'}' => '*',
 				);
@@ -239,7 +242,9 @@ class wappi_woocommerce {
 				Товары: {ITEMS}. 
 				Комментарий клиента: {COMMENT}. 
 				Трек-номер: {TRACKING_NUMBER}. URL для отслеживания: {TRACKING_URL}.
-				Магазин: {BLOGNAME}.";
+				Магазин: {BLOGNAME}.
+				Способ оплаты: {PAYMENT_METHOD}.";
+
 				$message = str_replace( array_keys($data), array_values($data), sanitize_text_field( $test_message ) );
 			}
 			$data = $this->_get_profile_info();	
@@ -357,10 +362,26 @@ class wappi_woocommerce {
 			'{OLD_STATUS}',
 			'{NEW_STATUS}',
 			'{COMMENT}',
+			'{SHIPPING_METHOD}',
+			'{PAYMENT_METHOD}',
 			'{TRACKING_NUMBER}',
 			'{TRACKING_URL}'
+
 		);
-		
+
+		$shipping_methods = $order->get_shipping_methods();
+		$payment_method_title = $order->get_payment_method_title();
+
+		$shipping_method = '';
+		if (!empty($shipping_methods)) {
+			$first_shipping = reset($shipping_methods);
+			$shipping_method = $first_shipping->get_name() ?? 'Метод доставки не указан';
+		} else {
+			$shipping_method = 'Метод доставки не указан';
+		}
+
+		$payment_method = !empty($payment_method_title) ? $payment_method_title : 'Метод оплаты не указан';
+
 		$replace = array(
 			$order->get_order_number(),
 			'№' . $order->get_order_number(),
@@ -379,7 +400,9 @@ class wappi_woocommerce {
 			get_option('blogname'),
 			wc_get_order_status_name($old_status),
 			wc_get_order_status_name($new_status),
-			$order->get_customer_note()
+			$order->get_customer_note(),
+			$shipping_method,
+			$payment_method
 		);
 		
 		$tracking_number = '';
@@ -451,7 +474,7 @@ class wappi_woocommerce {
 		$message = str_replace($search, $replace, $message);
 		$message = preg_replace('/\s?\{[^}]+\}/', '', $message);
 		$message = trim($message);
-		$message = mb_substr($message, 0, 670);
+		$message = mb_substr($message, 0, 5000);
 		$this->send($phone, $message);		
 	}
 

@@ -2,8 +2,8 @@
 Contributors: wappipro
 Tags: woocommerce, whatsapp, telegram, notifications, woocommerce whatsapp
 Requires at least: 3.8
-Tested up to: 6.6.1
-Stable tag: 1.0.2
+Tested up to: 6.6.2
+Stable tag: 1.0.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -67,3 +67,8 @@ Added line multiplicity in templates
 Tested up to 6.6.1 WordPress version
 = 1.0.2 =
 Added custom order variables processing
+= 1.0.3 =
+Update max message length from 670 to 5000 charaters
+= 1.0.4 =
+Added SHIPPING_METHOD and PAYMENT_METHOD into variables
+Tested up to: 6.6.2 WordPress version
