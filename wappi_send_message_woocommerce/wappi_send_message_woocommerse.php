@@ -159,7 +159,7 @@ class wappi_woocommerce {
 							?></td></tr>
 					<tr><th><label for="sender">ID профиля</label></th><td><input required name="sender" id="sender" value="<?php echo esc_attr( $p['sender'] ) ?>" /><br/>
 					<small>Узнать свой ID можно в личном кабинете Wappi</td></tr>
-					<tr><th><label for="vendor_phone">Номер продавца</label></th><td><input title="79008007060, 79008007060" required name="vendor_phone" pattern="^\d{11}(, \d{11})*$" id="vendor_phone" value="<?php echo esc_attr( $p['vendor_phone'] )  ?>" size="50"/>
+					<tr><th><label for="vendor_phone">Номер продавца</label></th><td><input title="79008007060, 3759008007060" required name="vendor_phone" pattern="^\d{11-13}(, \d{11-13})*$" id="vendor_phone" value="<?php echo esc_attr( $p['vendor_phone'] )  ?>" size="50"/>
 					<br/><small>Например, 79991112233, можно указать несколько через запятую.</small></td></tr>
 				</table>
 				<input type="submit" class="button-secondary" name="test" value="Отправить тестовое сообщение продавцу" />
