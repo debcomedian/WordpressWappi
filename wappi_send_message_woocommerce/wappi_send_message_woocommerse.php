@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.4
+Version: 1.0.5
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
