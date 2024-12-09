@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.5
+Version: 1.0.6
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
@@ -40,7 +40,7 @@ class wappi_woocommerce {
 	public static function load() {
 		$_this = new self();
 		add_action( 'admin_menu', array($_this,'admin_menu'));
-		add_action( 'woocommerce_new_order', array($_this,'status_changed'), 10, 1);
+		add_action( 'woocommerce_checkout_order_processed', array($_this,'status_changed'), 10, 1);
 		add_action( 'woocommerce_order_status_changed', array($_this, 'status_changed'), 10, 3);
 		return $_this;
 	}
@@ -297,7 +297,7 @@ class wappi_woocommerce {
 
 		if ( $p['apikey'] ) {
 
-			$o = new WC_Order($order_id);
+			$o = wc_get_order($order_id);
 
 			// $p['vendor_msg1'] = str_replace("\n", "<br>", $p['vendor_msg1']);
 			// $p['vendor_msg2'] = str_replace("\n", "<br>", $p['vendor_msg2']);
@@ -428,17 +428,23 @@ class wappi_woocommerce {
 			$items = $order->get_items();
 			$items_str = '';
 			foreach ($items as $i) {
-				/* @var $i WC_Order_Item_Product */
-				$name = $i['name'];
-				if ($_p = $i->get_product() && $sku = $_p->get_sku()) {
-					$name = $sku . ' ' . $name;
+				$product = $i->get_product();
+				$name = $i->get_name();
+				if ($product && $product->get_sku()) {
+					$name = $product->get_sku() . ' ' . $name;
 				}
-				$items_str .= "\n" . $name . ': ' . $i['qty'] . 'x' . $order->get_item_total($i) . '=' . $order->get_line_total($i);
+				$quantity = $i->get_quantity();
+				$line_total = $i->get_total();
+				$line_subtotal = $i->get_subtotal();
+				
+				$items_str .= "\n" . $name . ': ' . $quantity . 'x' . $line_total . '=' . $line_subtotal;
 			}
+
 			$sh = $order->get_shipping_methods();
-			foreach ($sh as $i) {
-				$items_str .= "\n" . __('Shipping', 'woocommerce') . ': ' . $i['name'] . '=' . $i['cost'];
+			foreach ($sh as $shipping_item) {
+				$items_str .= "\n" . __('Shipping', 'woocommerce') . ': ' . $shipping_item->get_name() . '=' . $shipping_item->get_total();
 			}
+
 			$items_str .= "\n";
 			$search[] = '{ITEMS}';
 			$replace[] = wp_strip_all_tags($items_str);
