@@ -14,7 +14,7 @@ Send WhatsApp and Telegram notifications for Woocommerce orders by connecting yo
 
 == Description ==
 
-Using the "Wappi – Send Notifications via personal WhatsApp and Telegram” plugin You can send automatic Whatsapp and Telegram notifications about order statuses to administrators and customers of an online store running on the WordPress WooCommerce platform.
+Using the "Wappi – Send Notifications via personal WhatsApp and Telegram” plugin You can send automatic Whatsapp, Telegram and SMS notifications about order statuses to administrators and customers of an online store running on the WordPress WooCommerce platform.
 
 This plugin requires you to have an account at [Wappi.pro](https://wappi.pro/). Create your account now by [clicking here](https://wappi.pro/registration). The free trial period is 5 days, then the cost starts from $5 per month 
 
@@ -27,6 +27,8 @@ Features:
 * Sending notifications from your own Whatsapp account. Connect your personal Whatsapp account by scanning the QR code and send automatic messages from it.
 
 * Sending notifications from your own Telegram account. Connect your personal Telegram account (not a bot) and send automatic messages from it.
+
+* Supports cascade sending of Whatsapp, Telegram and SMS notifications. If the client does not have one channel, the message will go through another one.
 
 * Automatic notifications to administrators. Sending notifications to the administrator or the seller about new orders and changing order statuses. You can specify several arbitrary numbers.
 
