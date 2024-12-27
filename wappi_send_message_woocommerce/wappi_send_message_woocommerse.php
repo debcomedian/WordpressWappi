@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.6
+Version: 1.0.7
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
@@ -157,8 +157,8 @@ class wappi_woocommerce {
 							} else
 								echo '<span style="color: red">Нужно ввести API-ключ</span>';
 							?></td></tr>
-					<tr><th><label for="sender">ID профиля</label></th><td><input required name="sender" id="sender" value="<?php echo esc_attr( $p['sender'] ) ?>" /><br/>
-					<small>Узнать свой ID можно в личном кабинете Wappi</td></tr>
+					<tr><th><label for="sender">ID профиля/каскада</label></th><td><input required name="sender" id="sender" value="<?php echo esc_attr( $p['sender'] ) ?>" /><br/>
+					<small>Узнать свой ID профиля или ID каскада можно в личном кабинете Wappi</td></tr>
 					<tr><th><label for="vendor_phone">Номер продавца</label></th><td><input title="79008007060, 3759008007060" required name="vendor_phone" pattern="^\d{11-13}(, \d{11-13})*$" id="vendor_phone" value="<?php echo esc_attr( $p['vendor_phone'] )  ?>" size="50"/>
 					<br/><small>Например, 79991112233, можно указать несколько через запятую.</small></td></tr>
 				</table>
@@ -247,47 +247,54 @@ class wappi_woocommerce {
 
 				$message = str_replace( array_keys($data), array_values($data), sanitize_text_field( $test_message ) );
 			}
-			$data = $this->_get_profile_info();	
-			if (sizeof($data) > 2) {
-				$time_sub = new DateTime($data['payment_expired_at']);
-				$time_curr = new DateTime;
-				if ($time_sub < $time_curr)
-					echo '<span style="color: red">Сообщение не отправлено</span>&nbsp;&nbsp;|&nbsp;&nbsp;Профиль не оплачен. <a href="https://wappi.pro/dashboard" target="_blank">Оплатите на сайте </a>';
-				else {
-					update_option('wappi_platform', $data['platform'] === 'tg'? 't' : '');
-					$this->send($p['vendor_phone'], $message);
-					$this->_save_info();
-					$time_diff = $time_curr->diff($time_sub);
-					$days_diff = $time_diff->days;
-					$hours_diff = $time_diff->h;
-					if (isset($_POST['test']))
-						echo '<span style="color: green">Тестовое сообщение успешно отправлено продавцу';
-					else 
-						echo '<span style="color: green">Сообщение успешно отправлено';
-					echo '</span>&nbsp;&nbsp;|&nbsp;&nbsp<span>' . esc_html('Профиль оплачен до: ' . $time_sub->format('Y-m-d') .', Подписка истекает через: ');
-					$days_diff_last_num = $days_diff % 10;
-					$hours_diff_last_num = $hours_diff % 10;
+			$profile_id = sanitize_text_field(get_option('wappi_sender'));
 
-					if ($days_diff !== 0) {
-						echo esc_html($days_diff);
-						if ($days_diff_last_num > 4 || ($days_diff > 10 && $days_diff < 21))
-							echo ' дней ';
-						else if ($days_diff_last_num === 1 )
-							echo ' день ';
-						else
-							echo ' дня ';
-					}
-					echo esc_html($hours_diff);
-					if ($hours_diff_last_num > 4 || ($hours_diff > 10 && $hours_diff < 20) || $hours_diff_last_num === 0) 
-						echo ' часов';	
-					else if ($hours_diff_last_num === 1)
-						echo ' час';
-					else 
-						echo ' часа';
-					echo '</span>';	
-				}		
-			} else 
-				echo '<span style="color: red">Ошибка отправки сообщения, скорее всего вы ввели неверный токен API или ID профиля</span>';
+			if (strlen($profile_id) != 20) { 
+				$data = $this->_get_profile_info($profile_id);	
+				if (sizeof($data) > 2) {
+					$time_sub = new DateTime($data['payment_expired_at']);
+					$time_curr = new DateTime;
+					if ($time_sub < $time_curr)
+						echo '<span style="color: red">Сообщение не отправлено</span>&nbsp;&nbsp;|&nbsp;&nbsp;Профиль не оплачен. <a href="https://wappi.pro/dashboard" target="_blank">Оплатите на сайте </a>';
+					else {
+						update_option('wappi_platform', $data['platform'] === 'tg'? 't' : '');
+						$this->send($p['vendor_phone'], $message);
+						$this->_save_info();
+						$time_diff = $time_curr->diff($time_sub);
+						$days_diff = $time_diff->days;
+						$hours_diff = $time_diff->h;
+						if (isset($_POST['test']))
+							echo '<span style="color: green">Тестовое сообщение успешно отправлено продавцу';
+						else 
+							echo '<span style="color: green">Сообщение успешно отправлено';
+						echo '</span>&nbsp;&nbsp;|&nbsp;&nbsp<span>' . esc_html('Профиль оплачен до: ' . $time_sub->format('Y-m-d') .', Подписка истекает через: ');
+						$days_diff_last_num = $days_diff % 10;
+						$hours_diff_last_num = $hours_diff % 10;
+
+						if ($days_diff !== 0) {
+							echo esc_html($days_diff);
+							if ($days_diff_last_num > 4 || ($days_diff > 10 && $days_diff < 21))
+								echo ' дней ';
+							else if ($days_diff_last_num === 1 )
+								echo ' день ';
+							else
+								echo ' дня ';
+						}
+						echo esc_html($hours_diff);
+						if ($hours_diff_last_num > 4 || ($hours_diff > 10 && $hours_diff < 20) || $hours_diff_last_num === 0) 
+							echo ' часов';	
+						else if ($hours_diff_last_num === 1)
+							echo ' час';
+						else 
+							echo ' часа';
+						echo '</span>';	
+					}		
+				} else 
+					echo '<span style="color: red">Ошибка отправки сообщения, скорее всего вы ввели неверный токен API или ID профиля</span>';
+			} else {
+				$this->_post($p['vendor_phone'], $message, $profile_id);
+				$this->_output_cascade($this->_get_cascade_info($profile_id));				
+			}
 		}
 	}
 
@@ -502,10 +509,70 @@ class wappi_woocommerce {
 	 *
 	 * @return array profile info.
 	 */
-	private function _get_profile_info() {
-		$profile_id = sanitize_text_field(get_option('wappi_sender'));
+	private function _get_profile_info($profile_id) {
 		$apikey = sanitize_text_field(get_option('wappi_apikey'));
 		$url = esc_url_raw('https://wappi.pro/api/sync/get/status?profile_id=' . urlencode($profile_id));
+
+		$args = array(
+			'method' => 'GET',
+			'headers' => array(
+				'Accept' => 'application/json',
+				'Authorization' => $apikey,
+				'Content-Type' => 'application/json',
+			),
+		);
+
+		$response = wp_remote_get($url, $args);
+		if (is_wp_error($response)) {
+			echo '<span style="color: red">' . esc_html('Ошибка HTTP: ' . $response->get_error_message()) . '</span>';
+			return "";
+		} else {
+			$body = wp_remote_retrieve_body($response);
+			$data = json_decode($body, true);
+			// Проверка на ошибки JSON
+			if (!(json_last_error() === JSON_ERROR_NONE)) {
+				echo '<span style="color: red">' . esc_html('Ошибка JSON: ' . json_last_error_msg()) . '</span>';
+			}
+		}
+		return $data;		
+	}
+
+	private function _output_cascade($data) {
+		if (isset($data['cascade']) && isset($data['cascade']['order'])) {
+			$cascade = $data['cascade'];
+			$cascade_name = $cascade['name'] ?? 'Unknown';
+			$order = $cascade['order'];
+		
+			$platforms = array_map(function ($item) {
+				$platform = $item['platform'] ?? 'Unknown';
+				$profile_uuid = $item['profile_uuid'] ?? 'Unknown';
+		
+				$platform_display = match ($platform) {
+					'wz' => 'WhatsApp',
+					'tg' => 'Telegram',
+					'sms' => 'СМС',
+					default => $platform,
+				};
+		
+				return "{$platform_display} {$profile_uuid}";
+			}, $order);
+		
+			$platforms_list = implode(', ', $platforms);
+		
+			echo "Каскад \"{$cascade_name}\": {$platforms_list}";
+		} else {
+			echo "Нет данных для отображения каскада.";
+		}
+	}
+
+	/**
+	 * Getting cascade information through the Wappi API.
+	 *
+	 * @return array cascade info.
+	 */
+	private function _get_cascade_info($cascade_id) {
+		$apikey = sanitize_text_field(get_option('wappi_apikey'));
+		$url = esc_url_raw('https://wappi.pro/csender/cascade/get?cascade_id=' . urlencode($cascade_id));
 
 		$args = array(
 			'method' => 'GET',
@@ -579,15 +646,26 @@ class wappi_woocommerce {
 		$platform = sanitize_text_field(get_option('wappi_platform'));
 		$apikey = sanitize_text_field(get_option('wappi_apikey'));
 		$phone_array = explode(', ', sanitize_text_field($phone));
-		
+
 		foreach ($phone_array as $phone) {
-			$message_json = json_encode(array(
-				'recipient' => sanitize_text_field($phone),
-				'body' => wp_kses_post($message)
-			));
-		
-			$url = esc_url_raw('https://wappi.pro/' . $platform . 'api/sync/message/send?profile_id=' . urlencode($profile_id));
-		
+
+			if (strlen($profile_id) != 20) {
+				$url = esc_url_raw('https://wappi.pro/' . $platform . 'api/sync/message/send?profile_id=' . urlencode($profile_id));
+			
+				$message_json = json_encode(array(
+					'recipient' => sanitize_text_field($phone),
+					'body' => wp_kses_post($message)
+				));
+			} else {
+				$url = esc_url_raw('https://wappi.pro/csender/cascade/send');
+
+				$message_json = json_encode(array(
+					'recipient' => sanitize_text_field($phone),
+					'body' => wp_kses_post($message),
+					'cascade_id' => $profile_id
+				));
+			}
+
 			$args = array(
 				'body' => $message_json,
 				'headers' => array(
