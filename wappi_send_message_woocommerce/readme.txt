@@ -3,7 +3,7 @@ Contributors: wappipro
 Tags: woocommerce, whatsapp, telegram, notifications, woocommerce whatsapp
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -81,3 +81,5 @@ Tested up to: 6.7.1 WordPress version
 Updated get order method
 = 1.0.7 =
 Сascades added
+= 1.0.8 =
+Fixed php 7.4 error from last version
