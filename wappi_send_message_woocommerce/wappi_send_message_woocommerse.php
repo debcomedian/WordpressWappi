@@ -135,7 +135,7 @@ class wappi_woocommerce {
 			<form method="post" id="mainform" action="<?php echo esc_attr(admin_url('admin.php?page=wappi_settings')) ?>">
 				<?php wp_nonce_field('wappi_settings_nonce_action', 'wappi_settings_nonce_field'); ?>
 				<h2>Whatsapp или Telegram оповещения о заказах через Wappi</h2>
-				<img src="/../wp-content/plugins/wappi_send_message_woocommerce/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
+				<img src="/../wp-content/plugins/wappi/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
 				<h3>Как пользоваться</h3>
 				<ol>
 					<li>Перейдите на <a href="https://wappi.pro/">wappi.pro</a> и зарегистрируйтесь</li>
