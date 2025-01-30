@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.7
+Version: 1.0.8
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
@@ -550,12 +550,20 @@ class wappi_woocommerce {
 				$platform = $item['platform'] ?? 'Unknown';
 				$profile_uuid = $item['profile_uuid'] ?? 'Unknown';
 		
-				$platform_display = match ($platform) {
-					'wz' => 'WhatsApp',
-					'tg' => 'Telegram',
-					'sms' => 'СМС',
-					default => $platform,
-				};
+				switch ($platform) {
+					case 'wz':
+						$platform_display = 'WhatsApp';
+						break;
+					case 'tg':
+						$platform_display = 'Telegram';
+						break;
+					case 'sms':
+						$platform_display = 'СМС';
+						break;
+					default:
+						$platform_display = $platform;
+						break;
+				}				
 		
 				return "{$platform_display} {$profile_uuid}";
 			}, $order);

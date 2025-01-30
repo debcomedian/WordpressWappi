@@ -4,7 +4,7 @@
 **Теги:** woo commerce, woocommerce, ecommerce, whatsapp, telegram, notification, whatsapp notification, telegram notification, уведомления  
 **Минимальная версия:** 3.8  
 **Протестировано до версии:** 6.7.1  
-**Стабильная версия:** 1.0.7  
+**Стабильная версия:** 1.0.8  
 **Требуется PHP:** 7.4  
 **Лицензия:** GPLv2 или более поздняя  
 **URI лицензии:** http://www.gnu.org/licenses/gpl-2.0.html  
@@ -89,3 +89,7 @@
 ### 1.0.7
 
 - Добавлены каскады
+
+### 1.0.8
+
+- Исправлена ошибка на php 7.4 в последней версии
