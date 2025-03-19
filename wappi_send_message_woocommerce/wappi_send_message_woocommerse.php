@@ -7,19 +7,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.8
+Version: 1.0.9
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires Plugins: woocommerce
 */
-
-function wappi_enqueue_styles() {
-    wp_register_style('wappi_styles', plugins_url('styles/style.css', __FILE__));
-    wp_enqueue_style('wappi_styles');
-}
-add_action('admin_enqueue_scripts', 'wappi_enqueue_styles');
 
 if (!is_callable('is_plugin_active')) {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -89,6 +83,9 @@ class wappi_woocommerce {
 	}
 
 	public function options() {
+
+		wp_register_style('wappi_styles', plugins_url('styles/style.css', __FILE__));
+    	wp_enqueue_style('wappi_styles');
 
 		$p = $this->_get_parameters();
 		$message = '';
