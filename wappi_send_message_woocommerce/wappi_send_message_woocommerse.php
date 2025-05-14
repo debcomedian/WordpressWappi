@@ -7,19 +7,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
 Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.0.8
+Version: 1.1.0
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires Plugins: woocommerce
 */
-
-function wappi_enqueue_styles() {
-    wp_register_style('wappi_styles', plugins_url('styles/style.css', __FILE__));
-    wp_enqueue_style('wappi_styles');
-}
-add_action('admin_enqueue_scripts', 'wappi_enqueue_styles');
 
 if (!is_callable('is_plugin_active')) {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -89,6 +83,9 @@ class wappi_woocommerce {
 	}
 
 	public function options() {
+
+		wp_register_style('wappi_styles', plugins_url('styles/style.css', __FILE__));
+    	wp_enqueue_style('wappi_styles');
 
 		$p = $this->_get_parameters();
 		$message = '';
@@ -202,6 +199,10 @@ class wappi_woocommerce {
 {COMMENT} - комментарий покупателя к заказу
 {SHIPPING_METHOD} - способ доставки, выбранный покупателем, {PAYMENT_METHOD} - способ оплаты, выбранный покупателем
 {TRACKING_NUMBER} => Трекинговый номер, {TRACKING_URL} => URL для отслеживания
+{COUPON_CODES} - коды применённых купонов, {COUPON_AMOUNTS} - номинал(ы) купона(ов),
+{COUPON_TYPES} - тип(ы) купонов (fixed_cart, percent …), {COUPON_DESCRIPTIONS} - описания купонов,
+{COUPON_DISCOUNT} - суммарная фактическая скидка
+
 <strong>{Произвольное поле}</strong> - вставка значения произвольного поля, которое вы или плагины добавили к заказу, 
 например, {post_tracking_number} или {ems_tracking_number} если установлен плагин 
 . Чувствительно к регистру символов!</code></pre></td></tr>
@@ -236,19 +237,30 @@ class wappi_woocommerce {
 					'{TRACKING_NUMBER}' => '1234567890',
 					'{SHIPPING_METHOD}' => 'Доставка курьером',
 					'{PAYMENT_METHOD}' => 'Оплата картой',
+					'{COUPON_CODES}'          => 'SUMMER2025',
+					'{COUPON_AMOUNTS}'        => '10',
+					'{COUPON_TYPES}'          => 'fixed_cart',
+					'{COUPON_DESCRIPTIONS}'   => 'Описание купона',
+					'{COUPON_DISCOUNT}'       => '8.00',
 					'{' => '*',
 					'}' => '*',
 				);
 				$test_message = "Заказ №{NUM} на сумму {SUM} ({FSUM}) от {FIRSTNAME} {LASTNAME}, город {CITY}, адрес {ADDRESS}. 
-				Контактный email: {EMAIL}, телефон: {PHONE}. 
-				Статус изменен с {OLD_STATUS} на {NEW_STATUS}.
-				Товары: {ITEMS}. 
-				Комментарий клиента: {COMMENT}. 
-				Трек-номер: {TRACKING_NUMBER}. URL для отслеживания: {TRACKING_URL}.
-				Магазин: {BLOGNAME}.
-				Способ оплаты: {PAYMENT_METHOD}.";
+Контактный email: {EMAIL}, телефон: {PHONE}. 
+Статус изменен с {OLD_STATUS} на {NEW_STATUS}.
+Товары: {ITEMS}. 
+Комментарий клиента: {COMMENT}. 
+Трек-номер: {TRACKING_NUMBER}. URL для отслеживания: {TRACKING_URL}.
+Магазин: {BLOGNAME}.
+Способ оплаты: {PAYMENT_METHOD}.
+Код применённого купона - {COUPON_CODES},
+Номинал купона - {COUPON_AMOUNTS},
+Тип купона (fixed_cart, percent …) - {COUPON_TYPES},
+Описание купоноа - {COUPON_DESCRIPTIONS},
+Суммарная фактическая скидка - {COUPON_DISCOUNT}";
 
-				$message = str_replace( array_keys($data), array_values($data), sanitize_text_field( $test_message ) );
+				$clean = array_map( 'sanitize_text_field', array_values( $data ) );
+				$message = str_replace( array_keys( $data ), $clean, $test_message );
 			}
 			$profile_id = sanitize_text_field(get_option('wappi_sender'));
 
@@ -357,6 +369,28 @@ class wappi_woocommerce {
 	{
 		global $wpdb;
 
+		$used_coupon_items  = $order->get_items( 'coupon' );
+		$coupon_codes       = array();
+		$coupon_amounts     = array();
+		$coupon_types       = array();
+		$coupon_descs       = array();
+
+		foreach ( $used_coupon_items as $ci ) {
+			$code    = $ci->get_code();
+			$coupon  = new WC_Coupon( $code );
+
+			$coupon_codes[]   = $code;
+			$coupon_amounts[] = $coupon->get_amount();
+			$coupon_types[]   = $coupon->get_discount_type();
+			$coupon_descs[]   = $coupon->get_description();
+		}
+
+		$coupon_codes       = implode( ', ', $coupon_codes );
+		$coupon_amounts     = implode( ', ', $coupon_amounts );
+		$coupon_types       = implode( ', ', $coupon_types );
+		$coupon_descs       = implode( ' | ', $coupon_descs );
+		$total_coupon_discount = $order->get_discount_total();
+
 		$search = array(
 			'{NUM}',
 			'{FNUM}',
@@ -375,8 +409,12 @@ class wappi_woocommerce {
 			'{SHIPPING_METHOD}',
 			'{PAYMENT_METHOD}',
 			'{TRACKING_NUMBER}',
-			'{TRACKING_URL}'
-
+			'{TRACKING_URL}',
+			'{COUPON_CODES}',
+			'{COUPON_AMOUNTS}',
+			'{COUPON_TYPES}',
+			'{COUPON_DESCRIPTIONS}',
+			'{COUPON_DISCOUNT}'
 		);
 
 		$shipping_methods = $order->get_shipping_methods();
@@ -433,6 +471,11 @@ class wappi_woocommerce {
 		
 		$replace[] = $tracking_number;
 		$replace[] = $tracking_url;
+		$replace[] = $coupon_codes;
+		$replace[] = $coupon_amounts;
+		$replace[] = $coupon_types;
+		$replace[] = $coupon_descs;
+		$replace[] = $total_coupon_discount;
 		
 		if (strpos($message, '{ITEMS}') !== false) {
 			$items = $order->get_items();
@@ -486,7 +529,7 @@ class wappi_woocommerce {
 		foreach ($replace as $k => $v) {
 			$replace[$k] = html_entity_decode($v);
 		}
-		
+
 		$message = str_replace($search, $replace, $message);
 		$message = preg_replace('/\s?\{[^}]+\}/', '', $message);
 		$message = trim($message);
