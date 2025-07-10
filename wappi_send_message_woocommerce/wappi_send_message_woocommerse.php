@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /*
 Plugin Name: Wappi
 Plugin URI: https://wappi.pro/integrations/wordpress
-Description: Whatsapp и Telegram уведомления о заказах WooCommerce через Wappi
-Version: 1.1.0
+Description: Wappi: уведомления в мессенджеры WooCommerce
+Version: 1.1.1
 Author: Wappi
 Author URI: https://wappi.pro
 License: GPL-2.0-or-later
@@ -40,7 +40,7 @@ class wappi_woocommerce {
 	}
 
 	public function admin_menu() {
-		add_submenu_page('woocommerce', 'Whatsapp и Telegram уведомления через Wappi', 'Wappi', 'manage_woocommerce', 'wappi_settings', array(&$this,'options'));
+		add_submenu_page('woocommerce', 'Wappi: уведомления в мессенджеры WooCommerce', 'Wappi', 'manage_woocommerce', 'wappi_settings', array(&$this,'options'));
 	}
 
 	public static function activate() {
@@ -131,7 +131,7 @@ class wappi_woocommerce {
 
 			<form method="post" id="mainform" action="<?php echo esc_attr(admin_url('admin.php?page=wappi_settings')) ?>">
 				<?php wp_nonce_field('wappi_settings_nonce_action', 'wappi_settings_nonce_field'); ?>
-				<h2>Whatsapp или Telegram оповещения о заказах через Wappi</h2>
+				<h2>Оповещения о заказах в мессенджеры через Wappi</h2>
 				<img src="/../wp-content/plugins/wappi/images/logo.webp" alt="А где лого? (^._.^)~" style="max-width: 130px; margin-left: 10px;">
 				<h3>Как пользоваться</h3>
 				<ol>

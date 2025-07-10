@@ -1,9 +1,9 @@
-=== Wappi – Send Notifications via personal WhatsApp and Telegram ===
+=== Wappi: WooCommerce Messenger Notifications ===
 Contributors: wappipro
 Tags: woocommerce, whatsapp, telegram, notifications, woocommerce whatsapp
 Requires at least: 3.8
 Tested up to: 6.8.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ Send WhatsApp and Telegram notifications for Woocommerce orders by connecting yo
 
 == Description ==
 
-Using the "Wappi – Send Notifications via personal WhatsApp and Telegram” plugin You can send automatic Whatsapp, Telegram and SMS notifications about order statuses to administrators and customers of an online store running on the WordPress WooCommerce platform.
+Using the "Wappi: WooCommerce Messenger Notifications" plugin You can send automatic Whatsapp, Telegram and SMS notifications about order statuses to administrators and customers of an online store running on the WordPress WooCommerce platform.
 
 This plugin requires you to have an account at [Wappi.pro](https://wappi.pro/). Create your account now by [clicking here](https://wappi.pro/registration). The free trial period is 5 days, then the cost starts from $5 per month 
 
@@ -43,7 +43,7 @@ Features:
 2. There are several installation options:
     2.1 Via the plugin catalog:
         * in the admin panel, go to the *Plugins* page and click *Add New*
-        * find the plugin "Wappi – Send Notifications via personal WhatsApp and Telegram"
+        * find the plugin "Wappi: WooCommerce Messenger Notifications"
         * click the button *Install*
     2.2 Via the console:
         * download the plugin here - [Download](https://wordpress.org/plugins/wappi/)
@@ -88,3 +88,5 @@ Fixed overriding the style of some controls throughout the site
 = 1.1.0 =
 Added new variable coupons to order
 Added line breaks and new variables to test message
+= 1.1.1 =
+Facebook license/trademark violations fixed
